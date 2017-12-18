@@ -53,15 +53,15 @@ def read_input():
 			X.append('HighSMI')
 
 		if float(record[9]) < 0:
-			X.append('R10')
+			X.append('R30')
 		elif float(record[9]) > 0 and float(record[9]) <= 3:
-			X.append('R11')
+			X.append('R31')
 		elif float(record[9]) > 3 and float(record[9]) <= 7:
-			X.append('R12')
+			X.append('R32')
 		elif float(record[9]) > 7 and float(record[9]) <= 15:
-			X.append('R13')
+			X.append('R33')
 		elif float(record[9]) > 15:
-			X.append('R14')
+			X.append('R34')
 		
 		temp.append(X)
 
