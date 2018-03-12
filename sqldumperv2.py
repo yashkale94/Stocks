@@ -239,10 +239,10 @@ def insert_affinity_data(prev_day,df,today_day,final_list,index_list,olddf,affin
 	return(R1TargetDate, R2TargetDate, R1Target,R2Target,affinity_list,target_list)	
 
 def check_rule(affinity_list):
-	rulesdf = pd.read_csv("Y:\Work\StocksSelectorNewData\AllStockEMArulesR2.csv")
+	rulesdf = pd.read_csv("Y:\Work\StocksSelector\Rules\AllStocksEMArules\R8AllStocksrules.csv")
 	for lhs,rhs in zip(rulesdf.LHS,rulesdf.RHS):
 		accept_list = []
-		if 'R25' in rhs:
+		if 'R82' in rhs:
 			lhs = ast.literal_eval(lhs)
 			for entry in lhs:
 				entry = entry.replace(" ","")
@@ -263,8 +263,13 @@ def calculate_technicals(prev_day,df,today_day):
 	High_values = list(df['High'].values)
 	High_values.append(today_day['High'])
 	
-	Low_values = list(df['High'].values)
+	Low_values = list(df['Low'].values)
 	Low_values.append(today_day['Low'])
+
+	# print(max(High_values))
+	# print(min(Low_values))
+	# print(today_day['High'])
+	# input()
 
 	HC = (max(High_values) + min(Low_values))/2
 	H = today_day['Close'] - HC 
