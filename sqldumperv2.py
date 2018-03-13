@@ -12,8 +12,10 @@ from sklearn.svm import SVC
 from sklearn.preprocessing import StandardScaler
 import json
 import re
+from sklearn.decomposition import PCA
+from sklearn.neural_network import MLPClassifier
 
-FILES = os.listdir("Y:\Work\StocksSelectorNewData\FinalStocksTable\\")
+# FILES = os.listdir("Y:\Work\StocksSelectorNewData\FinalStocksTable\\")
 
 # connection = sqlite3.connect("C:\Sqlite\\RightStock.db")
 # cursor = connection.cursor()
@@ -41,9 +43,9 @@ FILES = os.listdir("Y:\Work\StocksSelectorNewData\FinalStocksTable\\")
 
 # connection.commit()
 
-def predict_price(stockdf):
+def predict_price(stockdf,stock):
 
-	TrainData = stockdf.iloc[39:-40]
+	TrainData = stockdf.iloc[39:-10]
 	PredictData = stockdf.iloc[-1:]
 
 	X_train = []
@@ -51,7 +53,7 @@ def predict_price(stockdf):
 	# print(PredictData.columns)
 	# input()
 
-	exclude_index_list = [0,1,6,9,10,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,65,71,72]
+	exclude_index_list = [0,1,6,9,10,50,51,52,53,54,55,56,57,58,59,60,65,71,72]
 
 	for i,row in TrainData.iterrows():
 		record = row.values
@@ -61,20 +63,20 @@ def predict_price(stockdf):
 			if j not in exclude_index_list:
 				X.append(float(record[j]))
 
-		if float(record[72]) <= 0:
-			Y_train.append(0)
+		if float(record[72]) <= 5:
+			Y_train.append('R20')
 			
-		elif float(record[72]) >0 and float(record[72]) <= 2:
-			Y_train.append(1)
+		# elif float(record[72]) >0 and float(record[72]) <= 2:
+		# 	Y_train.append(1)
 			
-		elif float(record[72]) > 2  and float(record[72]) <=5:
-			Y_train.append(2)
+		# elif float(record[72]) > 2  and float(record[72]) <=5:
+		# 	Y_train.append(2)
 			
-		elif float(record[72]) > 5 and float(record[72]) <=10:
-			Y_train.append(3)
+		# elif float(record[72]) > 5 and float(record[72]) <=10:
+		# 	Y_train.append(3)
 			
-		elif float(record[72]) > 10:
-			Y_train.append(4)
+		elif float(record[72]) > 5:
+			Y_train.append('R25')
 
 		X_train.append(X)
 
@@ -90,16 +92,25 @@ def predict_price(stockdf):
 		predict_list.append(X)
 
 
-
-	LR = SVC(kernel = 'rbf', C=1e3 , gamma = 0.01)
+	LR = MLPClassifier(solver = 'lbfgs', max_iter = 500, hidden_layer_sizes= (1024,512,256,128) )
+	# LR = SVC(kernel = 'rbf', C=1e3 , gamma = 0.01)
 	scaler = StandardScaler()
 	scaler.fit(X_train)
 	X_train = scaler.transform(X_train)
 	predict_list = scaler.transform(predict_list)
+	pca = PCA()
+	pca.fit(X_train)
+	X_train = pca.transform(X_train)
+	predict_list = pca.transform(predict_list)
 	LR.fit(X_train, Y_train)
 	Y_pred = LR.predict(predict_list)
+	if Y_pred == 'R25':
+		Y_pred = (predict_prob(predict_list))
+		prob = max(Y_pred)
+		if prob > 0.7:
+			predicted_stocks_list.append(stock)
 
-	return(Y_pred[0])
+	# return(Y_pred[0])
 
 
 def insert_affinity_data(prev_day,df,today_day,final_list,index_list,olddf,affinitydf):
@@ -209,29 +220,13 @@ def insert_affinity_data(prev_day,df,today_day,final_list,index_list,olddf,affin
 
 	target_list = []
 
-	if R1Target <=-2:
+	if R1Target <=5:
 		target_list.append('R10')
-	elif R1Target > -2 and R1Target <= -1:
-		target_list.append('R11')
-	elif R1Target > -1 and R1Target <= 0:
-		target_list.append('R12')
-	elif R1Target > 0 and R1Target <= 1.5:
-		target_list.append('R13')
-	elif R1Target > 1.5 and R1Target <= 2.5:
-		target_list.append('R14')
-	elif R1Target > 2.5:
+	elif R1Target > 5:
 		target_list.append('R15')
 
-	if R2Target <=-4:
+	if R2Target <=5:
 		target_list.append('R20')
-	elif R2Target > -4 and R2Target <= -2:
-		target_list.append('R21')
-	elif R2Target > -2 and R2Target <= 0:
-		target_list.append('R22')
-	elif R2Target > 0 and R2Target <= 2:
-		target_list.append('R23')
-	elif R2Target > 2 and R2Target <= 5:
-		target_list.append('R24')
 	elif R2Target > 5:
 		target_list.append('R25')
 
@@ -406,10 +401,12 @@ def insert_data(filename):
 	affinity_query = 'insert into Affinity({0}) values({1})'
 	affinity_query = affinity_query.format(','.join(final_affinity_columns), ','.join('?' * len(final_affinity_columns)))
 
-	flag = check_rule(affinity_list)
-	if flag == 1:
-		predicted_price = predict_price(df)
-		predicted_stocks_list.append(stock_Name)
+	# flag = check_rule(affinity_list)
+	# if flag == 1:
+	# predicted_price = predict_price(df,stock_Name)
+	# print('Done')
+	# input()
+	# predicted_stocks_list.append(stock_Name)
 	# else:
 	# 	print('DNQ')
 
@@ -527,9 +524,9 @@ for stock in currentstocks:
 	print(stockname)
 	insert_data(stockname)
 
-print("A buy call has been initiated on the following stocks")
-for stock in predicted_stocks_list:
-	print(stock)
+# print("A buy call has been initiated on the following stocks")
+# for stock in predicted_stocks_list:
+# 	print(stock)
 
 with open('MainStocks.json', 'w') as outfile:
     json.dump(predicted_stocks_list, outfile)
