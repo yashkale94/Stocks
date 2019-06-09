@@ -11,17 +11,19 @@ We have used the following datasets to run our algorithms:
 
 ###### The demo_simulated.py will show you the performance of our algorithm on a simulated dataset. To run the demo_simulated.py file, run the following command:
 
-```python demo_simulated.py
+```
+python demo_simulated.py
 ```
 
 ###### The demo_dataset.py will show you the performance of our algorithm on the digits dataset provided by sklearn. To run the demo_dataset.py file, run the following command:
 
-```python demo_dataset.py
+```
+python demo_dataset.py
 ```
 
 ###### The demo_comparison.py file will show you how our Logistic Regression algorithm fares against sklearn's LogisticRegression algorithm. To run the demo_comparison.py file, run the following command:
 
-```python demo_comparison.py
 ```
-
+python demo_comparison.py
+```
 
