@@ -1,5 +1,6 @@
 # Statistical Method: Logistic Regression
 In this example, we have implemented our very own Logistic Regression algorithm. Here, we have implemented a binary Logistic Regression algorithm, which takes -1 and 1 as our class labels. It will predict on the test dataset after training on the training dataset.
+In all the codes, the file polished_code_LR has been imported, which enables us to run our demo files and initialise our model object.
 
 # Data
 We have used the following datasets to run our algorithms:
